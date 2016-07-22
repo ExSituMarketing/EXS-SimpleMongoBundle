@@ -1,0 +1,25 @@
+{
+    "name": "exs/simple-mongo-bundle",
+    "type": "symfony-bundle",
+    "description": "Bundle for peresisting and retriving information from MongoDB in PHP7",
+    "keywords": ["bundle", "mongo", "mongodb", "php"],
+    "homepage": "https://github.com/ExSituMarketing/EXS-SimpleMongoBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jangyong Lee",
+            "email": "lee@ex-situ.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "symfony/symfony": "~2.8",
+        "symfony/framework-bundle": "~2.7",
+        "swiftmailer/swiftmailer": "~5.4"
+    },
+    "autoload": {
+        "psr-0": { "EXS\\SimpleMongoBundle": "" }
+    },
+    "minimum-stability": "dev",
+    "target-dir": "EXS/SimpleMongoBundle"
+}
