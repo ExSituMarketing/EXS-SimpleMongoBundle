@@ -4,6 +4,6 @@ namespace EXS\SimpleMongoBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class EXSSimpleMongoBundleBundle extends Bundle
+class EXSSimpleMongoBundle extends Bundle
 {
 }
