@@ -1,0 +1,4 @@
+services:
+    exs_simple_mongo.service:
+        class: 'EXS\SimpleMongoBundle\Services\SimpleMongoService'   
+        arguments: ['%simple_mongo%']
