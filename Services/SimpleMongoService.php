@@ -68,17 +68,33 @@ class SimpleMongoService
     /**
      * Queue insert action
      * 
-     * @param object $data
+     * @param mixed $data
      * @return boolean
      */
     public function persist($data)
     {
-        $mappedData = $this->mapObject($data);
+        $mappedData = $this->validateData($data);        
         if(!empty($mappedData)) {
             $this->bulk->insert($mappedData);
             return true;
         }
         return false;
+    }
+    
+    /**
+     * Validate data for mapping
+     * 
+     * @param mixed $data
+     * @return array
+     */
+    public function validateData($data)
+    {
+        if (is_array($data)) {
+            return $data;
+        } else if (is_object($data)) {
+            return  $this->mapObject($data);
+        }
+        return [ $mappedData ];               
     }
     
     /**
@@ -100,6 +116,7 @@ class SimpleMongoService
         } catch (\MongoDB\Driver\Exception\Exception $e) {
             $result = $e->getMessage();
         }
+        $this->bulk = new \MongoDB\Driver\BulkWrite();
         return $result;        
     }    
     
