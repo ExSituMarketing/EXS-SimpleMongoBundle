@@ -187,7 +187,7 @@ class SimpleMongoService
             if($value instanceOf \DateTime) {
                 return get_object_vars($value);
             } 
-            return $this->mapObject($value);                               
+            return $this->createDocumentFromObject($value);                               
         }            
         return $value;        
     }
