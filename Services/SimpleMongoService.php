@@ -2,6 +2,11 @@
 
 namespace EXS\SimpleMongoBundle\Services;
 
+use MongoDB\Driver\Manager;
+use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Query;
+use MongoDB\Driver\WriteConcern;
+
 /**
  * Service for peresisting and retriving information from MongoDB in PHP7
  * 
@@ -9,16 +14,16 @@ namespace EXS\SimpleMongoBundle\Services;
 class SimpleMongoService
 {
     /**
-     * MongoDB server uri
+     * MongoDB connection manager
      *
-     * @var atring
+     * @var \MongoDB\Driver\Manager
      */
-    protected $connection;
+    protected $manager;
     
     /**
      * Array queue to store all MongoDb actions
      *
-     * @var array
+     * @var \MongoDB\Driver\BulkWrite
      */
     protected $bulk;
     
@@ -35,10 +40,10 @@ class SimpleMongoService
      * @param arary $connection
      */
     public function __construct($connection)
-    {
-        // set connection
+    {        
+        // get connection manager
         if(isset($connection['connection'])) {
-            $this->connection = $connection['connection'];
+            $this->manager = $this->getManager($connection['connection']);
         }
         
         // set dbname
@@ -47,18 +52,18 @@ class SimpleMongoService
         }
         
         // set the queue for bulk actions 
-        $this->bulk = new \MongoDB\Driver\BulkWrite();
-    }
+        $this->bulk = $this->setBulkWriteStorage();
+    }   
     
     /**
      * Get MongoDb manager
      * 
      * @return \MongoDB\Driver\Manager
      */
-    public function getManager()
+    public function getManager($connection)
     {
         try {
-            $manager = new \MongoDB\Driver\Manager($this->connection);
+            $manager = new Manager($connection);
         } catch (\Exception $e) {
             throwException($e->getMessage());
         }
@@ -110,17 +115,16 @@ class SimpleMongoService
     public function flush($collection)
     {
         $db = $this->dbname . '.' . $collection;
-        $manager = $this->getManager();
-        $writeConcern = new \MongoDB\Driver\WriteConcern(\MongoDB\Driver\WriteConcern::MAJORITY, 100);
+        $writeConcern = new WriteConcern(WriteConcern::MAJORITY, 100);
         try {        
-            $result = $manager->executeBulkWrite($db, $this->bulk, $writeConcern);
+            $result = $this->manager->executeBulkWrite($db, $this->bulk, $writeConcern);
             $result = $result->getInsertedCount();
         } catch (\MongoDB\Driver\Exception\BulkWriteException $e) {
             $result = $e->getWriteResult();
         } catch (\MongoDB\Driver\Exception\Exception $e) {
             $result = $e->getMessage();
         }
-        $this->bulk = new \MongoDB\Driver\BulkWrite(); // initiate the queue
+        $this->bulk = $this->setBulkWriteStorage(); // initiate the queue
         return $result;        
     }    
     
@@ -203,12 +207,25 @@ class SimpleMongoService
     public function exeQuery($filter, $options, $collection)
     {
         $db = $this->dbname . '.' . $collection;
-        $manager = $this->getManager();
         try {
-            $query = new \MongoDB\Driver\Query($filter, $options);
-            return $manager->executeQuery($db, $query)->toArray();                        
-        } catch (\MongoDB\Driver\Exception\Exception $ex) {
+            $query = new Query($filter, $options);
+            return $this->manager->executeQuery($db, $query)->toArray();                        
+        } catch (\MongoDB\Driver\Exception $ex) {
             return $ex->getMessage();
         }
     }
+    
+    /**
+     * Initiate bulk write storage
+     * 
+     * @param boolean $ordered
+     * @return \MongoDB\Driver\BulkWrite
+     */
+    public function setBulkWriteStorage($ordered = false)
+    {
+        if($ordered === true) {
+            return new BulkWrite(['ordered' => true]);
+        }
+        return new BulkWrite(['ordered' => false]);
+    }     
 }
