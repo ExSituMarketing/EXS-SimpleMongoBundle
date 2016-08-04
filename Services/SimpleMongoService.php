@@ -75,8 +75,12 @@ class SimpleMongoService
     {
         $mappedData = $this->validateData($data);        
         if(!empty($mappedData)) {
-            $this->bulk->insert($mappedData);
-            return true;
+            try {
+                $this->bulk->insert($mappedData);
+                return true;
+            } catch (\MongoDB\Driver\Exception $e) {
+                return $e->getMessage();
+            }
         }
         return false;
     }
@@ -92,7 +96,7 @@ class SimpleMongoService
         if (is_array($data)) {
             return $data;
         } else if (is_object($data)) {
-            return  $this->mapObject($data);
+            return  $this->createDocumentFromObject($data);
         }
         return [ $mappedData ];               
     }
@@ -101,7 +105,7 @@ class SimpleMongoService
      * Execute the bulk queue
      * 
      * @param string $collection
-     * @return object
+     * @return mixed
      */
     public function flush($collection)
     {
@@ -116,7 +120,7 @@ class SimpleMongoService
         } catch (\MongoDB\Driver\Exception\Exception $e) {
             $result = $e->getMessage();
         }
-        $this->bulk = new \MongoDB\Driver\BulkWrite();
+        $this->bulk = new \MongoDB\Driver\BulkWrite(); // initiate the queue
         return $result;        
     }    
     
@@ -126,7 +130,7 @@ class SimpleMongoService
      * @param object $object
      * @return array
      */
-    public function mapObject($object)
+    public function createDocumentFromObject($object)
     {
         $result = array();
         $methods = get_class_methods($object);
@@ -194,14 +198,17 @@ class SimpleMongoService
      * @param array $filter
      * @param array $options
      * @param string $collection
-     * @return array
+     * @return mixed
      */
     public function exeQuery($filter, $options, $collection)
     {
         $db = $this->dbname . '.' . $collection;
         $manager = $this->getManager();
-        $query = new \MongoDB\Driver\Query($filter, $options);
-        $results = $manager->executeQuery($db, $query)->toArray();
-        return $results;
+        try {
+            $query = new \MongoDB\Driver\Query($filter, $options);
+            return $manager->executeQuery($db, $query)->toArray();                        
+        } catch (\MongoDB\Driver\Exception $ex) {
+            return $ex->getMessage();
+        }
     }
 }
