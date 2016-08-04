@@ -78,7 +78,7 @@ class SimpleMongoService
             try {
                 $this->bulk->insert($mappedData);
                 return true;
-            } catch (\MongoDB\Driver\Exception $e) {
+            } catch (\MongoDB\Driver\Exception\Exception $e) {
                 return $e->getMessage();
             }
         }
@@ -207,7 +207,7 @@ class SimpleMongoService
         try {
             $query = new \MongoDB\Driver\Query($filter, $options);
             return $manager->executeQuery($db, $query)->toArray();                        
-        } catch (\MongoDB\Driver\Exception $ex) {
+        } catch (\MongoDB\Driver\Exception\Exception $ex) {
             return $ex->getMessage();
         }
     }
