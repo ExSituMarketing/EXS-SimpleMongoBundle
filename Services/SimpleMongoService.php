@@ -6,6 +6,7 @@ use MongoDB\Driver\Manager;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Query;
 use MongoDB\Driver\WriteConcern;
+use EXS\SimpleMongoBundle\Services\CreateCollection;
 
 /**
  * Service for peresisting and retriving information from MongoDB in PHP7
@@ -228,4 +229,52 @@ class SimpleMongoService
         }
         return new BulkWrite(['ordered' => false]);
     }     
+    
+    /**
+     * Create the new collection
+     * 
+     * @param string $collectionName
+     * @param obj $options
+     * @return string
+     */
+    public function createNewCollection($collectionName, $options)
+    {
+        $createCollection = new CreateCollection($collectionName);
+        $this->setIndexOption($createCollection, $options);
+        $this->setCappedOption($createCollection, $options);
+
+        try {
+            $command = $createCollection->getCommand();
+            $this->manager->executeCommand($this->dbname, $command);
+            return $collectionName. ' created';
+        } catch(\MongoDB\Driver\Exception $e) {
+            return $e->getMessage();
+        }        
+    }
+    
+    /**
+     * Set auto index option for the new collection
+     * 
+     * @param CreateCollection $createCollection
+     * @param obj $options
+     */
+    public function setIndexOption(CreateCollection $createCollection, $options = null) 
+    {
+        if(isset($options->index) && $options->index == 'false') {
+            $createCollection->setAutoIndexId(false);
+        }        
+    }
+    
+    /**
+     * Set capped option for the new collection
+     * 
+     * @param CreateCollection $createCollection
+     * @param obj $options
+     */
+    public function setCappedOption(CreateCollection $createCollection, $options = null) 
+    {        
+        if(isset($options->cap) && $options->cap == 'true') {
+            $createCollection->setCappedCollection($options->maxbyte, $options->maxdocs);
+        }        
+    }        
 }

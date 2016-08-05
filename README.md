@@ -39,10 +39,18 @@ Add your mongodb connection and dbname in the parameter file
         dbname: YOUR_DB_NAME
 ```
 
+Create the new collection(Optional)
+``` shell
+app/console exs:create:collection COLLECTION_NAME(Requires) OPTIONS
+// Options
+app/console exs:create:collection -h
+
+```
+
 In your controller or service
 ``` php
 // Insert data to mongodb
-$entity = new YourEntiry();
+$entity = new YourEntity();
 $entity->setPropertyValue(THE_VALUE);
 .
 .
