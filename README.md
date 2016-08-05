@@ -62,6 +62,11 @@ if(!is_int($result) || $result == 0) {
     throwException($result);
 }
 
+// Update
+$filter = ['product' => 6];
+$manager->update($filter, $entity);   
+$result = $manager->flush(COLLECTION_NAME); 
+ 
 // Get data with query
 $filter = ['product' => 6];
 $option = ['projection' => ['_id' => 0]];

@@ -92,6 +92,27 @@ class SimpleMongoService
     }
     
     /**
+     * Update collection
+     * 
+     * @param array $filter
+     * @param mioxed $data
+     * @return boolean
+     */
+    public function update($filter, $data)
+    {
+        $mappedData = $this->validateData($data);        
+        if(!empty($mappedData)) {
+            try {
+                $this->bulk->update($filter, $mappedData);
+                return true;
+            } catch (\MongoDB\Driver\Exception\Exception $e) {
+                return $e->getMessage();
+            }
+        }
+        return false;
+    }  
+    
+    /**
      * Validate data for mapping
      * 
      * @param mixed $data
