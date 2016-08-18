@@ -125,7 +125,7 @@ class SimpleMongoService
         } else if (is_object($data)) {
             return  $this->createDocumentFromObject($data);
         }
-        return [ $mappedData ];               
+        return [ $data ];               
     }
     
     /**
