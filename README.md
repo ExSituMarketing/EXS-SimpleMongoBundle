@@ -10,7 +10,7 @@ Edit composer.json file with # EXS-SimpleMongoBundle dependency:
 //...
 "require": {
     //other bundles
-    "exs/simple-mongo-bundle": "dev-master"
+    "exs/simple-mongo-bundle": "^1.0"
 },
 ```
 Save the file and have composer update the project via the command line:
